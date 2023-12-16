@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker/locale/en";
 describe("CRUD", () => {
   it("CRUDs a note", () => {
     const noteDescription = faker.lorem.words(4);
+    let attachFile = false;
 
     cy.intercept("GET", "**/notes").as("getNotes");
     cy.intercept("GET", "**/notes/**").as("getNote");
@@ -10,6 +11,11 @@ describe("CRUD", () => {
 
     cy.visit("/notes/new");
     cy.get("#content").type(noteDescription);
+
+    if (attachFile) {
+      cy.get("#file").selectFile("cypress/fixtures/example.json");
+    }
+
     cy.contains("button", "Create").click();
 
     cy.wait("@getNotes");
@@ -22,6 +28,13 @@ describe("CRUD", () => {
 
     cy.get("#content").as("contentField").clear();
     cy.get("@contentField").type(updatedNoteDescription);
+
+    attachFile = true;
+
+    if (attachFile) {
+      cy.get("#file").selectFile("cypress/fixtures/example.json");
+    }
+
     cy.contains("button", "Save").click();
     cy.wait("@getNotes");
 
